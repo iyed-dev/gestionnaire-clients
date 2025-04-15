@@ -3,6 +3,7 @@ import os
 import tkinter.filedialog as filedialog
 import pandas as pd
 import customtkinter as ctk
+import tkinter.messagebox as messagebox
 
 DATA_FILE = "clients.json"
 
@@ -110,6 +111,7 @@ class ClientManagerApp(ctk.CTk):
         self.link_entry.delete(0, "end")
         self.comment_entry.delete("1.0", "end")
         self.status_combobox.set("")
+
         self.selected_index = None
 
     def refresh_tree(self, filtered_clients=None):
@@ -127,8 +129,11 @@ class ClientManagerApp(ctk.CTk):
             label = ctk.CTkLabel(container, text=info, anchor="w")
             label.pack(side="left", fill="x", expand=True, padx=5)
 
-            btn = ctk.CTkButton(container, text="Modifier", width=100, command=lambda idx=index: self.load_client(idx))
-            btn.pack(side="right", padx=5)
+            btn_update = ctk.CTkButton(container, text="Modifier", width=100, command=lambda idx=index: self.load_client(idx))
+            btn_update.pack(side="left", padx=5)
+
+            btn_delete = ctk.CTkButton(container, text="Supprimer", width=100, command=lambda idx=index: self.delete_client(idx))
+            btn_delete.pack(side="right", padx=5)
 
             self.tree_items.append(container)
 
@@ -176,6 +181,14 @@ class ClientManagerApp(ctk.CTk):
             self.refresh_tree()
         except Exception as e:
             ctk.CTkMessagebox(title="Erreur", message=f"Impossible d'importer le fichier : {e}", icon="cancel")
+
+    def delete_client(self, index):
+        confirm = messagebox.askyesno("Confirmation", "Supprimer ce client ?")
+        if confirm:
+            del self.clients[index]
+            self.save_data()
+            self.refresh_tree()
+            self.clear_fields()
 
 if __name__ == "__main__":
     app = ClientManagerApp()
